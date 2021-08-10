@@ -4,10 +4,17 @@ import turtle
 
 
 class Game:
+    __BG_COLOR = [211 / 255, 228 / 255, 211 / 255]
+
+    __HEAD_COLOR = [24 / 255, 29 / 255, 26 / 255]
+
+    __FOOD_COLOR = [124 / 255, 132 / 255, 119 / 255]
 
     def __init__(self):
 
         self.__delay = 0.1
+
+        self.__stop = False
 
         # Score
         self.__score = 0
@@ -15,8 +22,8 @@ class Game:
 
         # Set up the screen
         self.__game_window = turtle.Screen()
-        self.__game_window.title("Snake Game by @TokyoEdTech")
-        self.__game_window.bgcolor("green")
+        self.__game_window.title("py-snake")
+        self.__game_window.bgcolor(*Game.__BG_COLOR)
         self.__game_window.setup(width=600, height=600)
         self.__game_window.tracer(0)  # Turns off the screen updates
 
@@ -24,7 +31,7 @@ class Game:
         self.__head = turtle.Turtle()
         self.__head.speed(0)
         self.__head.shape("square")
-        self.__head.color("black")
+        self.__head.color(*Game.__HEAD_COLOR)
         self.__head.penup()
         self.__head.goto(0, 0)
         self.__head.direction = "stop"
@@ -33,7 +40,7 @@ class Game:
         self.__food = turtle.Turtle()
         self.__food.speed(0)
         self.__food.shape("square")
-        self.__food.color("red")
+        self.__food.color(*Game.__FOOD_COLOR)
         self.__food.penup()
         self.__food.goto(0, 100)
 
@@ -43,11 +50,12 @@ class Game:
         self.__pen = turtle.Turtle()
         self.__pen.speed(0)
         self.__pen.shape("square")
-        self.__pen.color("yellow")
+        self.__pen.color(*Game.__HEAD_COLOR)
         self.__pen.penup()
         self.__pen.hideturtle()
         self.__pen.goto(0, 260)
-        self.__pen.write("Score: 0  High Score: 0", align="center", font=("Courier", 24, "normal"))
+
+        self.__refresh_score()
 
     # Functions
     def go_up(self):
@@ -69,6 +77,11 @@ class Game:
     def do_nothing(self):
         pass
 
+    def __refresh_score(self):
+        self.__pen.write("Score: {}  High Score: {}".format(self.__score, self.__high_score),
+                         align="center",
+                         font=("System", 24, "normal"))
+
     def __move(self):
         if self.__head.direction == "up":
             y = self.__head.ycor()
@@ -85,6 +98,34 @@ class Game:
         if self.__head.direction == "right":
             x = self.__head.xcor()
             self.__head.setx(x + 20)
+
+    def set_stop(self):
+        self.__stop = True
+
+    def __reset(self):
+        time.sleep(1)
+
+        self.__head.goto(0, 0)
+        self.__head.direction = "stop"
+
+        # Hide the segments
+        for segment in self.__segments:
+            segment.goto(1000, 1000)
+
+        # Clear the segments list
+        self.__segments.clear()
+
+        # Reset the score
+        self.__score = 0
+
+        # Reset the delay
+        self.__delay = 0.1
+
+        # Update the score display
+        self.__pen.clear()
+        self.__refresh_score()
+
+        self.__stop = False
 
     # Main game loop
     def run(self):
@@ -117,7 +158,7 @@ class Game:
                 new_segment = turtle.Turtle()
                 new_segment.speed(0)
                 new_segment.shape("square")
-                new_segment.color("grey")
+                new_segment.color(*Game.__FOOD_COLOR)
                 new_segment.penup()
                 self.__segments.append(new_segment)
 
@@ -132,9 +173,7 @@ class Game:
 
                 self.__pen.clear()
 
-                self.__pen.write("Score: {}  High Score: {}".format(self.__score, self.__high_score),
-                                 align="center",
-                                 font=("Courier", 24, "normal"))
+                self.__refresh_score()
 
             # Move the end segments first in reverse order
             for index in range(len(self.__segments) - 1, 0, -1):
@@ -153,27 +192,9 @@ class Game:
             # Check for head collision with the body segments
             for segment in self.__segments:
                 if segment.distance(self.__head) < 20:
-                    time.sleep(1)
-                    self.__head.goto(0, 0)
-                    self.__head.direction = "stop"
+                    self.__reset()
 
-                    # Hide the segments
-                    for segment in self.__segments:
-                        segment.goto(1000, 1000)
-
-                    # Clear the segments list
-                    self.__segments.clear()
-
-                    # Reset the score
-                    self.__score = 0
-
-                    # Reset the delay
-                    self.__delay = 0.1
-
-                    # Update the score display
-                    self.__pen.clear()
-                    self.__pen.write("Score: {}  High Score: {}".format(self.__score, self.__high_score),
-                                     align="center",
-                                     font=("Courier", 24, "normal"))
+            if self.__stop is True:
+                self.__reset()
 
             time.sleep(self.__delay)

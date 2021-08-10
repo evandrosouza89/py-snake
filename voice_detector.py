@@ -145,10 +145,7 @@ class VoiceDetector:
 
         file_in_memory = io.BytesIO()
 
-        t1 = round(time.time() * 1000)
         sample_width, data = self.record()
-        t2 = round(time.time() * 1000)
-        print("1: ", t2 - t1)
 
         # 2-bytes little-endian short
         data = self.__pack_data(data)

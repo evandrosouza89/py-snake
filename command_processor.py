@@ -19,7 +19,7 @@ class CommandProcessor(threading.Thread):
             2: self.__game.go_left,
             3: self.__game.do_nothing,
             4: self.__game.go_right,
-            5: self.__game.do_nothing,
+            5: self.__game.set_stop,
             6: self.__game.go_up,
             7: self.__game.do_nothing
         }
