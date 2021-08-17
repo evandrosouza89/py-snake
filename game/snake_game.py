@@ -3,7 +3,7 @@ import time
 import turtle
 
 
-class Game:
+class SnakeGame:
     __BG_COLOR = [211 / 255, 228 / 255, 211 / 255]
 
     __HEAD_COLOR = [24 / 255, 29 / 255, 26 / 255]
@@ -23,15 +23,17 @@ class Game:
         # Set up the screen
         self.__game_window = turtle.Screen()
         self.__game_window.title("py-snake")
-        self.__game_window.bgcolor(*Game.__BG_COLOR)
+        self.__game_window.bgcolor(*SnakeGame.__BG_COLOR)
         self.__game_window.setup(width=600, height=600)
         self.__game_window.tracer(0)  # Turns off the screen updates
+        root = turtle.getcanvas().winfo_toplevel()
+        root.iconbitmap("assets/snake.ico")
 
         # Snake head
         self.__head = turtle.Turtle()
         self.__head.speed(0)
         self.__head.shape("square")
-        self.__head.color(*Game.__HEAD_COLOR)
+        self.__head.color(*SnakeGame.__HEAD_COLOR)
         self.__head.penup()
         self.__head.goto(0, 0)
         self.__head.direction = "stop"
@@ -40,7 +42,7 @@ class Game:
         self.__food = turtle.Turtle()
         self.__food.speed(0)
         self.__food.shape("square")
-        self.__food.color(*Game.__FOOD_COLOR)
+        self.__food.color(*SnakeGame.__FOOD_COLOR)
         self.__food.penup()
         self.__food.goto(0, 100)
 
@@ -50,7 +52,7 @@ class Game:
         self.__pen = turtle.Turtle()
         self.__pen.speed(0)
         self.__pen.shape("square")
-        self.__pen.color(*Game.__HEAD_COLOR)
+        self.__pen.color(*SnakeGame.__HEAD_COLOR)
         self.__pen.penup()
         self.__pen.hideturtle()
         self.__pen.goto(0, 260)
@@ -158,7 +160,7 @@ class Game:
                 new_segment = turtle.Turtle()
                 new_segment.speed(0)
                 new_segment.shape("square")
-                new_segment.color(*Game.__FOOD_COLOR)
+                new_segment.color(*SnakeGame.__FOOD_COLOR)
                 new_segment.penup()
                 self.__segments.append(new_segment)
 

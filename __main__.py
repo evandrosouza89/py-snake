@@ -1,8 +1,8 @@
 import tensorflow as tf
 
-from command_processor import CommandProcessor
-from game import Game
-from voice_detector import VoiceDetector
+from game.command_processor import CommandProcessor
+from game.snake_game import SnakeGame
+from game.voice_detector import VoiceDetector
 
 # Enabling memory growth to avoid CUDNN_STATUS_NOT_INITIALIZED on Windows
 try:
@@ -20,7 +20,7 @@ def load_model():
 
 
 def main():
-    game = Game()
+    game = SnakeGame()
 
     voice_detector = VoiceDetector()
 
