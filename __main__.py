@@ -14,7 +14,7 @@ except:
 
 
 def load_model():
-    model = tf.keras.models.load_model('model')
+    model = tf.keras.models.load_model('model_output')
     model.summary()
     return model
 
