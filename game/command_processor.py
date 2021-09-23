@@ -15,13 +15,10 @@ class CommandProcessor(threading.Thread):
 
         self.__command_dict = {
             0: self.__game.go_down,
-            1: self.__game.do_nothing,
-            2: self.__game.go_left,
-            3: self.__game.do_nothing,
-            4: self.__game.go_right,
-            5: self.__game.set_stop,
-            6: self.__game.go_up,
-            7: self.__game.do_nothing
+            1: self.__game.go_left,
+            2: self.__game.go_right,
+            3: self.__game.set_stop,
+            4: self.__game.go_up
         }
 
     def __decode_audio(self, audio_binary):

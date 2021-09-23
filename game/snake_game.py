@@ -76,9 +76,6 @@ class SnakeGame:
         if self.__head.direction != "left":
             self.__head.direction = "right"
 
-    def do_nothing(self):
-        pass
-
     def __refresh_score(self):
         self.__pen.write("Score: {}  High Score: {}".format(self.__score, self.__high_score),
                          align="center",

@@ -141,8 +141,6 @@ class VoiceDetector:
     # Records from the microphone and outputs the resulting data to "path"
     def record_to_file(self):
 
-        print("Say")
-
         file_in_memory = io.BytesIO()
 
         sample_width, data = self.record()
