@@ -13,9 +13,11 @@ except:
     pass
 
 
-def load_model():
+def __load_model():
     model = tf.keras.models.load_model("model/model_output")
+
     model.summary()
+
     return model
 
 
@@ -24,7 +26,7 @@ def main():
 
     voice_detector = VoiceDetector()
 
-    model = load_model()
+    model = __load_model()
 
     command_processor = CommandProcessor(game, voice_detector, model)
 

@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 import tensorflow as tf
+from matplotlib import pylab
 from tensorflow.keras import layers
 from tensorflow.keras import models
 from tensorflow.keras.layers.experimental import preprocessing
@@ -26,10 +27,10 @@ __DATA_PATH = "data/mini_speech_commands"
 __AUTOTUNE = tf.data.AUTOTUNE
 __SAMPLES = 16000  # 1 sec at 16Khz
 __BATCH_SIZE = 64
-__EPOCHS = 100
+__EPOCHS = 15
 
 
-def build_data_dir():
+def __build_data_dir():
     data_dir = pathlib.Path(__DATA_PATH)
 
     if not data_dir.exists():
@@ -50,7 +51,7 @@ def build_data_dir():
     return pathlib.Path(__DATA_PATH + "/"), np.array(tf.io.gfile.listdir(str(data_dir)))
 
 
-def setup_files():
+def __setup_files():
     filenames = tf.io.gfile.glob(str(__data_dir) + "/*/*")
 
     filenames = tf.random.shuffle(filenames)
@@ -64,12 +65,12 @@ def setup_files():
     return filenames[:train_size], filenames[train_size: train_size + val_size], filenames[-test_size:]
 
 
-def decode_audio(audio_binary):
+def __decode_audio(audio_binary):
     decoded_audio, _ = tf.audio.decode_wav(audio_binary)
     return tf.squeeze(decoded_audio, axis=-1)
 
 
-def get_label(file_path):
+def __get_label(file_path):
     parts = tf.strings.split(file_path, os.path.sep)
 
     # Note: You"ll use indexing here instead of tuple unpacking to enable this
@@ -77,17 +78,17 @@ def get_label(file_path):
     return parts[-2]
 
 
-def get_waveform_and_label(file_path):
-    file_name = get_label(file_path)
+def __get_waveform_and_label(file_path):
+    file_name = __get_label(file_path)
 
     audio_binary = tf.io.read_file(file_path)
 
-    decoded_waveform = decode_audio(audio_binary)
+    decoded_waveform = __decode_audio(audio_binary)
 
     return decoded_waveform, file_name
 
 
-def get_spectrogram(waveform):
+def __get_spectrogram(waveform):
     # Padding for files with less than __SAMPLES samples
     zero_padding = tf.zeros([__SAMPLES] - tf.shape(waveform), dtype=tf.float32)
 
@@ -107,7 +108,7 @@ def get_spectrogram(waveform):
     return spectrogram
 
 
-def plot_waveforms():
+def __plot_waveforms():
     rows = 3
     cols = 3
 
@@ -135,7 +136,7 @@ def plot_waveforms():
     plt.show()
 
 
-def plot_spectrogram(spectrogram, ax):
+def __plot_spectrogram(spectrogram, ax):
     # Convert to frequencies to log scale and transpose so that the time is
     # represented in the x-axis (columns).
     log_spec = np.log(spectrogram.T)
@@ -151,7 +152,7 @@ def plot_spectrogram(spectrogram, ax):
     return ax.pcolormesh(X, Y, log_spec)
 
 
-def plot_spectrograms(spectrogram_ds):
+def __plot_spectrograms(spectrogram_ds):
     rows = 3
     cols = 3
 
@@ -167,7 +168,7 @@ def plot_spectrograms(spectrogram_ds):
         r = i // cols
         c = i % cols
         ax = axes[r][c]
-        mesh = plot_spectrogram(np.squeeze(spectrogram.numpy()), ax)
+        mesh = __plot_spectrogram(np.squeeze(spectrogram.numpy()), ax)
         ax.set_title(__commands[label_id.numpy()])
         ax.set_ylabel("f(Hz)")
         ax.set_xlabel("sample")
@@ -177,44 +178,83 @@ def plot_spectrograms(spectrogram_ds):
     plt.show()
 
 
-def get_spectrogram_and_label_id(audio, label):
-    spectrogram = get_spectrogram(audio)
+def __plot_evolution_of_metrics(history):
+    metrics = history.history
+
+    # loss and val_loss differ because the former is applied to the train set, and the latter the validation set.
+    plt.plot(__history.epoch, metrics["loss"], metrics["val_loss"])
+    plt.plot(__history.epoch, metrics["accuracy"], metrics["val_accuracy"])
+
+    plt.title("Evolution of metrics")
+
+    plt.legend(["Train loss", "Test loss", "Train accuracy", "Test accuracy"])
+    plt.ylabel("Value")
+    plt.xlabel("Epoch")
+
+    fig = pylab.gcf()
+    fig.canvas.manager.set_window_title("Evolution of metrics")
+
+    plt.show()
+
+
+def __plot_confusion_matrix(confusion_mtx):
+    plt.figure(figsize=(10, 8))
+
+    sns.heatmap(confusion_mtx,
+                xticklabels=__commands,
+                yticklabels=__commands,
+                annot=True,
+                fmt="g")
+
+    plt.title("Confusion matrix")
+
+    plt.xlabel("Prediction")
+    plt.ylabel("Label")
+
+    fig = pylab.gcf()
+    fig.canvas.manager.set_window_title("Confusion matrix")
+
+    plt.show()
+
+
+def __get_spectrogram_and_label_id(audio, label):
+    spectrogram = __get_spectrogram(audio)
     spectrogram = tf.expand_dims(spectrogram, -1)
     label_id = tf.argmax(label == __commands)
     return spectrogram, label_id
 
 
-def preprocess_dataset(files):
+def __preprocess_dataset(files):
     files_ds = tf.data.Dataset.from_tensor_slices(files)
-    output_ds = files_ds.map(get_waveform_and_label, num_parallel_calls=__AUTOTUNE)
-    output_ds = output_ds.map(get_spectrogram_and_label_id, num_parallel_calls=__AUTOTUNE)
+    output_ds = files_ds.map(__get_waveform_and_label, num_parallel_calls=__AUTOTUNE)
+    output_ds = output_ds.map(__get_spectrogram_and_label_id, num_parallel_calls=__AUTOTUNE)
     return output_ds
 
 
-__data_dir, __commands = build_data_dir()
+__data_dir, __commands = __build_data_dir()
 
 print("Available commands:", __commands)
 
 __num_labels = len(__commands)
 
-__train_files, __val_files, __test_files = setup_files()
+__train_files, __val_files, __test_files = __setup_files()
 
 print("Training set size", len(__train_files))
 print("Validation set size", len(__val_files))
 print("Test set size", len(__test_files))
 
 __files_ds = tf.data.Dataset.from_tensor_slices(__train_files)
-__waveform_ds = __files_ds.map(get_waveform_and_label, num_parallel_calls=__AUTOTUNE)
+__waveform_ds = __files_ds.map(__get_waveform_and_label, num_parallel_calls=__AUTOTUNE)
 
-plot_waveforms()
+__plot_waveforms()
 
-__spectrogram_ds = __waveform_ds.map(get_spectrogram_and_label_id, num_parallel_calls=__AUTOTUNE)
+__spectrogram_ds = __waveform_ds.map(__get_spectrogram_and_label_id, num_parallel_calls=__AUTOTUNE)
 
-plot_spectrograms(__spectrogram_ds)
+__plot_spectrograms(__spectrogram_ds)
 
 __train_ds = __spectrogram_ds
-__val_ds = preprocess_dataset(__val_files)
-__test_ds = preprocess_dataset(__test_files)
+__val_ds = __preprocess_dataset(__val_files)
+__test_ds = __preprocess_dataset(__test_files)
 
 __train_ds = __train_ds.batch(__BATCH_SIZE)
 __val_ds = __val_ds.batch(__BATCH_SIZE)
@@ -260,11 +300,7 @@ __history = __model.fit(
     # Stop training when "val_loss" metric has stopped improving after 2 epochs.
 )
 
-__metrics = __history.history
-
-plt.plot(__history.epoch, __metrics["loss"], __metrics["val_loss"])
-plt.legend(["loss", "val_loss"])
-plt.show()
+__plot_evolution_of_metrics(__history)
 
 __test_audio = []
 __test_labels = []
@@ -285,19 +321,7 @@ print(f"Test set accuracy: {__test_acc:.0%}")
 
 __confusion_mtx = tf.math.confusion_matrix(__y_true, __y_pred)
 
-plt.figure(figsize=(10, 8))
-
-sns.heatmap(__confusion_mtx,
-            xticklabels=__commands,
-            yticklabels=__commands,
-            annot=True,
-            fmt="g")
-
-plt.xlabel("Prediction")
-
-plt.ylabel("Label")
-
-plt.show()
+__plot_confusion_matrix(tf.math.confusion_matrix(__y_true, __y_pred))
 
 __model_output_path = "model_output/"
 
@@ -308,7 +332,7 @@ __model.save(__model_output_path)
 
 __sample_file = __data_dir / "right/1aeef15e_nohash_1.wav"
 
-__sample_ds = preprocess_dataset([str(__sample_file)])
+__sample_ds = __preprocess_dataset([str(__sample_file)])
 
 for spectrogram, label in __sample_ds.batch(1):
     prediction = __model(spectrogram)
@@ -320,6 +344,9 @@ for spectrogram, label in __sample_ds.batch(1):
     plt.bar(__commands, tf.nn.softmax(prediction[0]))
 
     plt.title(f'Predictions for "{__commands[label[0]]}"')
+
+    fig = pylab.gcf()
+    fig.canvas.manager.set_window_title(f'Predictions for "{__commands[label[0]]}"')
 
     plt.show()
 
