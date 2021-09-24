@@ -53,7 +53,9 @@ PyAudio doesn't provide a straight forward installation through pip, so:
     pip install .\libs\PyAudio-0.2.11-cp38-cp38-win32.whl
 
 
-All other libs installations should run fine from [requirements.txt](requirements.txt) file. 
+All other libs installations should run fine from [requirements.txt](requirements.txt) file:
+
+    pip install -r requirements.txt
 
 
 # How to compile and run:
