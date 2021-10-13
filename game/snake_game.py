@@ -10,9 +10,15 @@ class SnakeGame:
 
     __FOOD_COLOR = [124 / 255, 132 / 255, 119 / 255]
 
+    __DELAY = 0.2
+
+    __FOOD_SIZE = 1
+
+    __FOOD_COLISION = 30
+
     def __init__(self):
 
-        self.__delay = 0.1
+        self.__delay = SnakeGame.__DELAY
 
         self.__stop = False
 
@@ -40,6 +46,7 @@ class SnakeGame:
 
         # Snake food
         self.__food = turtle.Turtle()
+        self.__food.shapesize(SnakeGame.__FOOD_SIZE, SnakeGame.__FOOD_SIZE)
         self.__food.speed(0)
         self.__food.shape("square")
         self.__food.color(*SnakeGame.__FOOD_COLOR)
@@ -146,7 +153,7 @@ class SnakeGame:
                 self.__head.goto(self.__head.xcor(), 290)
 
             # Check for a collision with the food
-            if self.__head.distance(self.__food) < 20:
+            if self.__head.distance(self.__food) < SnakeGame.__FOOD_COLISION:
 
                 # Move next food to a random spot
                 x = random.randint(-290, 290)
