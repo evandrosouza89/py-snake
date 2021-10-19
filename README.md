@@ -38,20 +38,18 @@ pre-trained CNN model.
 
 PyAudio doesn't provide a straight forward installation through pip, so:
 
-### For 64 bits windows users:
+### For Windows users:
 
-    pip install .\libs\PyAudio-0.2.11-cp38-cp38-win_amd64.whl
+    pip install pipwin
+    pipwin install pyaudio
 
-### For linux users:
+### For Linux users:
 
     sudo apt-get install libasound-dev portaudio19-dev libportaudio2 libportaudiocpp0
     sudo apt-get install ffmpeg libav-tools
     sudo pip install pyaudio
 
-### For 32 bits windows users:
-    
-    pip install .\libs\PyAudio-0.2.11-cp38-cp38-win32.whl
-
+Also, as for October 2021, Tensorflow 2 currently only supports Python 3.6 – 3.9.
 
 All other libs installations should run fine from [requirements.txt](requirements.txt) file:
 
