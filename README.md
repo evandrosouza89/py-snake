@@ -58,9 +58,13 @@ All other libs installations should run fine from [requirements.txt](requirement
 
 # How to compile and run:
 
-A pre-trained CNN model is already in place, but if you want to fine tune and build your own CNN model, check [model_trainer.py](model/model_trainer.py) class, 
+In order to run the game first you'll have to train and export a CNN model using [model_trainer.py](model/model_trainer.py) 
+class. 
+
+A pre-configured CNN model is already in place ready to be trained, but if you want to  fine tune and build your own CNN 
+model, check for CNN hyperparameters in [model_trainer.py](model/model_trainer.py) class, 
 apply your changes and run it. It will generate a custom CNN model in **model/model_output** folder. This exported
 CNN model will be used by the game.
 
-The main class of the game is [main.py](__main__.py), run it, wait for thing to initialize and shout a direction command.
-
+The main class of the game is [main.py](__main__.py), run it, wait for the game screen to initialize and shout a direction 
+command in your microphone.
