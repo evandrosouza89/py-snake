@@ -4,7 +4,8 @@
 
 # PY-SNAKE
 
-A voice-commanded snake game featuring a Convolutional Neural Network model built on top of TensorFlow framework.
+A voice-commanded snake game featuring a [Convolutional Neural Network (CNN)](https://en.wikipedia.org/wiki/Convolutional_neural_network) 
+model built on top of TensorFlow framework.
 
 Supported voice-commands are:
 
@@ -14,7 +15,7 @@ Supported voice-commands are:
 - **Right**
 - **Stop** -- stops and resets the game.
 
-# Architecture
+# Game architecture
 
 This project is divided into two packages: **model** and **game**. 
 
@@ -33,6 +34,36 @@ Is composed of:
  - [voice_detector.py](game/voice_detector.py) - detects and record voice segments from microphone.
  - [command_processor.py](game/command_processor.py) - translate voice commands into game commands using the 
 pre-trained CNN model.
+
+## Voice command pipeline
+
+<p align="center">
+  <img src="/assets/pipeline.png">
+</p>
+
+Voice command pipeline has 7 steps:
+
+1-2: The pipeline starts with voice caption via microphone which will become a byte stream;
+3: When this stream is sampled at a certain rate it will become a waveform, which is a sound amplitude by time plot.
+4-5: Here the first data transformation happens. A waveform is fed to a [STFT](https://en.wikipedia.org/wiki/Short-time_Fourier_transform) 
+in order to produce a spectrogram, which in short is a three-dimensional plot featuring time, sound frequency and amplitude.
+6-7: The produced spectrogram, which is essentially an image, will then be fed to a CNN, which will identify and label
+it accordingly to the previously trained voice-commands.
+8: Identified command will be applied to current game state.
+
+# Model architecture
+
+The CNN model used in this game has 10 layers, which are in sequence:
+
+- Resizing layer: resizes input into a lower dimension to accelerate training;
+- Normalization layer: standardizes the input level;
+- 2x 2D convolutional layers: extracts features from the image by applying filters into it;
+- Pooling layer: image downsampling preserving its features;
+- Dropout layer: to prevent overfitting;
+- Flatten layer: flattens the input, transforming a N dimensional matrix into a vector; 
+- Dense layer: a dense conected neural network layer;
+- Another dropout layer;
+- Final dense layer.
 
 # How to install required libs:
 
