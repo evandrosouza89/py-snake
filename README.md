@@ -43,13 +43,13 @@ pre-trained CNN model.
 
 Voice command pipeline has 7 steps:
 
-1-2: The pipeline starts with voice caption via microphone which will become a byte stream;
-3: When this stream is sampled at a certain rate it will become a waveform, which is a sound amplitude by time plot.
-4-5: Here the first data transformation happens. A waveform is fed to a [STFT](https://en.wikipedia.org/wiki/Short-time_Fourier_transform) 
+- **1-2**: The pipeline starts with voice caption via microphone which will become a byte stream;
+- **3**: When this stream is sampled at a certain rate it will become a waveform, which is a sound amplitude by time plot.
+- **4-5**: Here the first data transformation happens. A waveform is fed to a [STFT](https://en.wikipedia.org/wiki/Short-time_Fourier_transform) 
 in order to produce a spectrogram, which in short is a three-dimensional plot featuring time, sound frequency and amplitude.
-6-7: The produced spectrogram, which is essentially an image, will then be fed to a CNN, which will identify and label
+- **6-7**: The produced spectrogram, which is essentially an image, will then be fed to a CNN, which will identify and label
 it accordingly to the previously trained voice-commands.
-8: Identified command will be applied to current game state.
+- **8**: Identified command will be applied to current game state.
 
 # Model architecture
 
@@ -61,9 +61,9 @@ The CNN model used in this game has 10 layers, which are in sequence:
 - Pooling layer: image downsampling preserving its features;
 - Dropout layer: to prevent overfitting;
 - Flatten layer: flattens the input, transforming a N dimensional matrix into a vector; 
-- Dense layer: a dense conected neural network layer;
-- Another dropout layer;
-- Final dense layer.
+- Dense layer: a dense connected neural network layer;
+- Another Dropout layer to avoid overfitting;
+- A final Dense layer which will output the probabilities of all labels.
 
 # How to install required libs:
 
