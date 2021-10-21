@@ -49,7 +49,7 @@ Voice command pipeline has 7 steps:
 in order to produce a spectrogram, which in short is a three-dimensional plot featuring time, sound frequency and amplitude.
 - **6-7**: The produced spectrogram, which is essentially an image, will then be fed to a CNN, which will identify and label
 it accordingly to the previously trained voice-commands.
-- **8**: Identified command will be applied to current game state.
+- **8**: Identified command will be applied into current game state.
 
 # Model architecture
 
