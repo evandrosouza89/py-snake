@@ -8,7 +8,8 @@ import tensorflow as tf
 from matplotlib import pylab
 from tensorflow.keras import layers
 from tensorflow.keras import models
-from tensorflow.keras.layers.experimental import preprocessing
+from tensorflow.keras.layers import Normalization
+from tensorflow.keras.layers import Resizing
 
 # Enabling memory growth to avoid CUDNN_STATUS_NOT_INITIALIZED on Windows
 try:
@@ -23,7 +24,9 @@ __SEED = 42
 tf.random.set_seed(__SEED)
 np.random.seed(__SEED)
 
-__DATA_PATH = "data/mini_speech_commands"
+__MINI_SPEECH_COMMANDS = "mini_speech_commands"
+__DATA_PATH = "data/" + __MINI_SPEECH_COMMANDS
+__DATA_PATH_EXTRACTED = __DATA_PATH + "_extracted"
 __AUTOTUNE = tf.data.AUTOTUNE
 __SAMPLES = 16000  # 1 sec at 16Khz
 __BATCH_SIZE = 64
@@ -31,24 +34,25 @@ __EPOCHS = 15
 
 
 def __build_data_dir():
-    data_dir = pathlib.Path(__DATA_PATH)
+    data_dir = pathlib.Path(__DATA_PATH_EXTRACTED + "/" + __MINI_SPEECH_COMMANDS)
 
     if not data_dir.exists():
         tf.keras.utils.get_file(
             "mini_speech_commands.zip",
-            origin="http://storage.googleapis.com/download.tensorflow.org/data/mini_speech_commands.zip",
+            origin="http://storage.googleapis.com/download.tensorflow.org/data/" + __MINI_SPEECH_COMMANDS + ".zip",
             extract=True,
             cache_dir=".",
             cache_subdir="data")
 
         tf.io.gfile.remove("%s.zip" % __DATA_PATH)
-        tf.io.gfile.remove("%s/README.md" % __DATA_PATH)
-        tf.io.gfile.rmtree("%s/go" % __DATA_PATH)
-        tf.io.gfile.rmtree("%s/no" % __DATA_PATH)
-        tf.io.gfile.rmtree("%s/yes" % __DATA_PATH)
-        tf.io.gfile.rmtree("data/__MACOSX/")
+        tf.io.gfile.remove("%s/%s/README.md" % (__DATA_PATH_EXTRACTED, __MINI_SPEECH_COMMANDS))
+        tf.io.gfile.rmtree("%s/%s/go" % (__DATA_PATH_EXTRACTED, __MINI_SPEECH_COMMANDS))
+        tf.io.gfile.rmtree("%s/%s/no" % (__DATA_PATH_EXTRACTED, __MINI_SPEECH_COMMANDS))
+        tf.io.gfile.rmtree("%s/%s/yes" % (__DATA_PATH_EXTRACTED, __MINI_SPEECH_COMMANDS))
+        tf.io.gfile.rmtree("%s/%s/" % (__DATA_PATH_EXTRACTED, "__MACOSX"))
 
-    return pathlib.Path(__DATA_PATH + "/"), np.array(tf.io.gfile.listdir(str(data_dir)))
+    return pathlib.Path(__DATA_PATH_EXTRACTED + "/" + __MINI_SPEECH_COMMANDS), np.array(
+        tf.io.gfile.listdir(str(data_dir)))
 
 
 def __setup_files():
@@ -267,12 +271,12 @@ for spectrogram, _ in __spectrogram_ds.take(1):
 
 print("Input shape:", __input_shape)
 
-__norm_layer = preprocessing.Normalization()
+__norm_layer = Normalization()
 __norm_layer.adapt(__spectrogram_ds.map(lambda x, _: x))
 
 __model = models.Sequential([
     layers.Input(shape=__input_shape),
-    preprocessing.Resizing(32, 32),
+    Resizing(32, 32),
     __norm_layer,
     layers.Conv2D(32, 3, activation="relu"),
     layers.Conv2D(64, 3, activation="relu"),
@@ -328,7 +332,7 @@ __model_output_path = "model_output/"
 if not os.path.exists(__model_output_path):
     os.makedirs(__model_output_path)
 
-__model.save(__model_output_path)
+__model.save(__model_output_path + "model.keras")
 
 __sample_file = __data_dir / "right/1aeef15e_nohash_1.wav"
 
